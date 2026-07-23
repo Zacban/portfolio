@@ -1,0 +1,36 @@
+name: Deploy to simply.com
+
+# Run this pipeline every time we push to the main branch.
+on:
+  push:
+    branches: [main]
+  # Also allow running it manually from the GitHub "Actions" tab.
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. Grab a copy of the repository.
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Upload the site to simply.com over FTP.
+      #    Credentials come from encrypted GitHub "secrets" (never in the code).
+      - name: Deploy via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          # The folder on simply.com to publish into. For most simply.com
+          # setups this is the web root, often "/public_html/" or "/".
+          # We'll confirm the exact path from your control panel.
+          server-dir: ${{ secrets.FTP_SERVER_DIR }}
+          # Don't upload repo/dev files to the live server.
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/.github/**
+            PROJECT_CHARTER.md
+            README.md
