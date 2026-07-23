@@ -1,0 +1,23 @@
+# Normalize line endings: store text files with LF in the repo, and let Git
+# check them out with the platform's native endings. Silences the
+# "LF will be replaced by CRLF" warnings on Windows.
+* text=auto
+
+# Force LF for files that should always use it (web/build/config files).
+*.html   text eol=lf
+*.css    text eol=lf
+*.js     text eol=lf
+*.json   text eol=lf
+*.yml    text eol=lf
+*.yaml   text eol=lf
+*.md     text eol=lf
+
+# Treat these as binary (never touch line endings).
+*.png    binary
+*.jpg    binary
+*.jpeg   binary
+*.gif    binary
+*.webp   binary
+*.ico    binary
+*.woff   binary
+*.woff2  binary
