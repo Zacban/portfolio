@@ -24,12 +24,19 @@ Zac (zacban@gmail.com)
 - **Domain:** existing (owned by Zac)
 - **Version control / remote:** GitHub — user `zacban` (repo to be created)
 
-## Known constraint — .NET backend hosting
-Zac wants to build a **C# .NET 10** backend over time. simply.com's standard
-shared hosting runs **PHP on Linux** and cannot run a .NET app. The static
-frontend deploys to simply.com fine, but the future .NET API will need separate
-hosting (VPS, container host, or e.g. Azure App Service), with the frontend
-calling it as an API. Decide the concrete host in Phase 3/4.
+## .NET backend hosting
+Zac wants to build a **C# .NET 10** backend over time. simply.com **does offer
+Windows + .NET 10 hosting**, so the backend can live on the same host as the
+frontend — no separate VPS/Azure required. The "web deploy" option in the
+simply.com panel is Microsoft Web Deploy (msdeploy), the standard way to publish
+.NET apps to Windows/IIS.
+
+Planned deploy paths:
+- **Frontend (static):** FTP (already set up in Phase 1).
+- **Backend (.NET, later):** Web Deploy to the Windows/.NET host.
+
+To confirm when we get to the backend: which simply.com plan/tier includes the
+Windows/.NET server, and its Web Deploy endpoint + credentials.
 
 ---
 
