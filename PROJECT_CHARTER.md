@@ -33,7 +33,7 @@ calling it as an API. Decide the concrete host in Phase 3/4.
 
 ---
 
-## Phase 1 — "Coming Soon" + Deploy Pipeline  ◀ current
+## Phase 1 — "Coming Soon" + Deploy Pipeline  ✅ COMPLETE
 **Goal:** A designed "Coming Soon" placeholder page, automatically deployed to
 simply.com every time we push to the main branch.
 
@@ -54,7 +54,7 @@ FTP/SFTP deploys, DNS/hosting basics.
 
 ---
 
-## Phase 2 — Portfolio Foundation
+## Phase 2 — Portfolio Foundation  ◀ current
 **Goal:** Replace "Coming Soon" with a real (still simple) portfolio structure.
 
 Likely scope:
@@ -94,3 +94,5 @@ framework (e.g. Astro) for structure and reuse. We'll decide when we get here.
 
 ## Changelog
 - 2026-07-23 — Charter created. Phase 1 defined and started.
+- 2026-07-23 — Phase 1 COMPLETE. Coming Soon page live on domain via GitHub
+  Actions → FTP → simply.com. Pipeline verified green. Phase 2 begins.
