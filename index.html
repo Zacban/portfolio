@@ -3,154 +3,253 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Zac — Coming Soon</title>
-  <meta name="description" content="Portfolio of Zac, software developer. Coming soon." />
+  <title>Zacban Labs — AI-Enhanced, Expertise-Backed</title>
+  <meta name="description" content="Zacban Labs — the studio identity of software developer Jesper Raundahl. AI-Enhanced, Expertise-Backed. Portfolio under construction." />
+  <meta name="author" content="Jesper Raundahl" />
 
   <!-- Open Graph (how the link looks when shared) -->
-  <meta property="og:title" content="Zac — Coming Soon" />
-  <meta property="og:description" content="Software developer portfolio. Under construction." />
+  <meta property="og:title" content="Zacban Labs — AI-Enhanced, Expertise-Backed" />
+  <meta property="og:description" content="Software built with machine leverage and human judgment. Portfolio under construction." />
   <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://zacban.dk" />
 
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💻</text></svg>" />
+  <!-- Monospace 'z' mark as favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22><rect width=%2232%22 height=%2232%22 rx=%227%22 fill=%22%230c0e13%22/><text x=%2216%22 y=%2222%22 font-family=%22monospace%22 font-size=%2220%22 font-weight=%22700%22 text-anchor=%22middle%22 fill=%22%23e6a338%22>z</text></svg>" />
 
   <style>
     :root {
-      --bg: #0b0f1a;
-      --bg-glow: #131a2e;
-      --fg: #e6edf6;
-      --muted: #8b98b0;
-      --accent: #5b8cff;
-      --accent-2: #7df3d0;
+      --ink:        #0c0e13;  /* deep near-black, faintly cool */
+      --surface:    #14171f;  /* raised console panel */
+      --line:       #232a37;  /* hairlines / borders */
+      --paper:      #edeae3;  /* warm off-white — primary text */
+      --muted:      #7b8494;  /* secondary text */
+      --ai:         #8072ff;  /* electric violet — "AI-Enhanced"  */
+      --expertise:  #e6a338;  /* warm amber   — "Expertise-Backed" */
+
+      --mono: ui-monospace, "SF Mono", "Cascadia Code", "JetBrains Mono", Menlo, Consolas, monospace;
+      --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
-
     html, body { height: 100%; }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background: radial-gradient(1200px 600px at 50% -10%, var(--bg-glow), var(--bg) 60%);
-      color: var(--fg);
+      font-family: var(--sans);
+      color: var(--paper);
+      background:
+        radial-gradient(900px 500px at 85% -20%, rgba(128,114,255,0.10), transparent 60%),
+        radial-gradient(700px 500px at 0% 120%, rgba(230,163,56,0.08), transparent 55%),
+        var(--ink);
       min-height: 100%;
       display: grid;
       place-items: center;
-      padding: 2rem;
-      overflow: hidden;
+      padding: clamp(1.25rem, 4vw, 3rem);
+      -webkit-font-smoothing: antialiased;
     }
 
-    .card {
+    .panel {
+      width: min(660px, 100%);
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: clamp(1.5rem, 5vw, 3rem);
+      box-shadow: 0 30px 80px -40px rgba(0,0,0,0.9);
       position: relative;
-      text-align: center;
-      max-width: 640px;
-      z-index: 1;
     }
 
-    .eyebrow {
-      font-family: ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
-      font-size: 0.85rem;
-      letter-spacing: 0.25em;
-      text-transform: uppercase;
-      color: var(--accent-2);
-      margin-bottom: 1.25rem;
-    }
-
-    h1 {
-      font-size: clamp(2.5rem, 8vw, 4.5rem);
-      line-height: 1.05;
-      font-weight: 800;
-      letter-spacing: -0.02em;
-      background: linear-gradient(120deg, var(--fg), var(--accent));
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      margin-bottom: 1rem;
-    }
-
-    p.tagline {
-      font-size: clamp(1rem, 3vw, 1.25rem);
-      color: var(--muted);
-      margin-bottom: 2.5rem;
-    }
-
+    /* ── status eyebrow ───────────────────────────────── */
     .status {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .status .state { display: inline-flex; align-items: center; gap: 0.55rem; }
+    .beacon {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--expertise);
+      box-shadow: 0 0 0 0 rgba(230,163,56,0.6);
+      animation: beacon 2.4s infinite;
+    }
+    @keyframes beacon {
+      0%   { box-shadow: 0 0 0 0 rgba(230,163,56,0.55); }
+      70%  { box-shadow: 0 0 0 9px rgba(230,163,56,0); }
+      100% { box-shadow: 0 0 0 0 rgba(230,163,56,0); }
+    }
+
+    /* ── wordmark ─────────────────────────────────────── */
+    .wordmark {
+      font-family: var(--mono);
+      font-weight: 700;
+      font-size: clamp(2.4rem, 9vw, 4.25rem);
+      letter-spacing: -0.03em;
+      line-height: 1;
+      margin: 2.25rem 0 1.1rem;
+    }
+    .wordmark .dot { color: var(--muted); }
+    .wordmark .labs { color: var(--muted); }
+
+    /* ── tagline: the two halves are the two accents ──── */
+    .tagline {
+      font-family: var(--mono);
+      font-size: clamp(1rem, 3.4vw, 1.4rem);
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      line-height: 1.3;
+    }
+    .tagline .ai   { color: var(--ai); }
+    .tagline .exp  { color: var(--expertise); }
+
+    .lede {
+      margin-top: 1.15rem;
+      max-width: 46ch;
+      color: var(--muted);
+      font-size: clamp(0.95rem, 2.6vw, 1.05rem);
+      line-height: 1.6;
+    }
+
+    /* ── signature: the deploy pipeline ───────────────── */
+    .pipeline { margin-top: 2.5rem; }
+    .stages {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.55rem 0.7rem;
+      font-family: var(--mono);
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+    .stages .arrow { color: var(--line); }
+    .stages .live {
+      color: var(--paper);
       display: inline-flex;
       align-items: center;
-      gap: 0.6rem;
-      font-family: ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
-      font-size: 0.9rem;
+      gap: 0.45rem;
+    }
+    .stages .live::before {
+      content: "";
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--expertise);
+      box-shadow: 0 0 10px 1px rgba(230,163,56,0.7);
+    }
+
+    /* the track: a violet→amber sweep travels toward "live" */
+    .track {
+      position: relative;
+      height: 2px;
+      margin-top: 1rem;
+      border-radius: 2px;
+      background: var(--line);
+      overflow: hidden;
+    }
+    .track::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      width: 40%;
+      border-radius: 2px;
+      background: linear-gradient(90deg, transparent, var(--ai), var(--expertise), transparent);
+      transform: translateX(-120%);
+      animation: sweep 3.6s cubic-bezier(0.5, 0, 0.2, 1) infinite;
+    }
+    @keyframes sweep {
+      0%   { transform: translateX(-120%); }
+      100% { transform: translateX(320%); }
+    }
+
+    .caption {
+      margin-top: 0.85rem;
+      font-family: var(--mono);
+      font-size: 0.75rem;
       color: var(--muted);
-      padding: 0.6rem 1.1rem;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.03);
     }
 
-    .dot {
-      width: 9px;
-      height: 9px;
-      border-radius: 50%;
-      background: var(--accent-2);
-      box-shadow: 0 0 0 0 var(--accent-2);
-      animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-      0%   { box-shadow: 0 0 0 0 rgba(125, 243, 208, 0.5); }
-      70%  { box-shadow: 0 0 0 10px rgba(125, 243, 208, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(125, 243, 208, 0); }
-    }
-
-    .links {
-      margin-top: 2.5rem;
+    /* ── footer ───────────────────────────────────────── */
+    .divider { height: 1px; background: var(--line); margin: 2.5rem 0 1.35rem; }
+    .foot {
       display: flex;
-      gap: 1.5rem;
-      justify-content: center;
       flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem 1rem;
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      color: var(--muted);
     }
-
-    .links a {
+    .foot .name { color: var(--paper); }
+    .foot nav { display: flex; gap: 1.1rem; }
+    .foot a {
       color: var(--muted);
       text-decoration: none;
-      font-size: 0.95rem;
-      transition: color 0.2s ease;
+      border-bottom: 1px solid transparent;
+      transition: color 0.18s ease, border-color 0.18s ease;
     }
-    .links a:hover { color: var(--accent); }
+    .foot a:hover { color: var(--paper); border-color: var(--ai); }
+    .foot a:focus-visible {
+      outline: 2px solid var(--ai);
+      outline-offset: 3px;
+      border-radius: 2px;
+    }
 
-    footer {
-      position: fixed;
-      bottom: 1.25rem;
-      left: 0;
-      right: 0;
-      text-align: center;
-      font-size: 0.8rem;
-      color: rgba(139, 152, 176, 0.5);
+    /* entrance */
+    .panel > * { animation: rise 0.7s both; }
+    .panel > *:nth-child(2) { animation-delay: 0.06s; }
+    .panel > *:nth-child(3) { animation-delay: 0.12s; }
+    .panel > *:nth-child(4) { animation-delay: 0.18s; }
+    .panel > *:nth-child(5) { animation-delay: 0.24s; }
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .dot { animation: none; }
+      .beacon, .track::after, .panel > * { animation: none; }
+      .track::after { transform: none; width: 100%; opacity: 0.5; }
     }
   </style>
 </head>
 <body>
-  <main class="card">
-    <div class="eyebrow">Software Developer</div>
-    <h1>Something is being built here.</h1>
-    <p class="tagline">
-      My portfolio is under construction. Check back soon —
-      or find me in the meantime below.
-    </p>
-
+  <main class="panel">
     <div class="status">
-      <span class="dot" aria-hidden="true"></span>
-      Coming soon
+      <span class="state"><span class="beacon" aria-hidden="true"></span>System · building</span>
+      <span>zacban.dk</span>
     </div>
 
-    <nav class="links">
-      <a href="https://github.com/zacban" target="_blank" rel="noopener">GitHub</a>
-      <a href="mailto:zacban@gmail.com">Email</a>
-    </nav>
-  </main>
+    <h1 class="wordmark">zacban<span class="dot">.</span><span class="labs">labs</span></h1>
 
-  <footer>© 2026 Zac · Built in the open</footer>
+    <p class="tagline"><span class="ai">AI-Enhanced</span>, <span class="exp">Expertise-Backed</span>.</p>
+
+    <p class="lede">
+      Software built with machine leverage and human judgment.
+      The full portfolio is under construction — the foundation is already live.
+    </p>
+
+    <div class="pipeline">
+      <div class="stages" aria-label="deployment pipeline">
+        <span>edit</span><span class="arrow">→</span>
+        <span>push</span><span class="arrow">→</span>
+        <span>build</span><span class="arrow">→</span>
+        <span>deploy</span><span class="arrow">→</span>
+        <span class="live">live</span>
+      </div>
+      <div class="track" aria-hidden="true"></div>
+      <p class="caption">This page ships itself — every commit deploys automatically.</p>
+    </div>
+
+    <div class="divider" aria-hidden="true"></div>
+
+    <footer class="foot">
+      <span class="name">Jesper Raundahl</span>
+      <nav>
+        <a href="https://github.com/zacban" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://www.linkedin.com/in/zacban" target="_blank" rel="noopener">LinkedIn</a>
+        <a href="mailto:zacban@gmail.com">Email</a>
+      </nav>
+    </footer>
+  </main>
 </body>
 </html>

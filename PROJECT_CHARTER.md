@@ -24,16 +24,23 @@ Zac (zacban@gmail.com)
 - **Domain:** existing (owned by Zac)
 - **Version control / remote:** GitHub — user `zacban` (repo to be created)
 
-## Known constraint — .NET backend hosting
-Zac wants to build a **C# .NET 10** backend over time. simply.com's standard
-shared hosting runs **PHP on Linux** and cannot run a .NET app. The static
-frontend deploys to simply.com fine, but the future .NET API will need separate
-hosting (VPS, container host, or e.g. Azure App Service), with the frontend
-calling it as an API. Decide the concrete host in Phase 3/4.
+## .NET backend hosting
+Zac wants to build a **C# .NET 10** backend over time. simply.com **does offer
+Windows + .NET 10 hosting**, so the backend can live on the same host as the
+frontend — no separate VPS/Azure required. The "web deploy" option in the
+simply.com panel is Microsoft Web Deploy (msdeploy), the standard way to publish
+.NET apps to Windows/IIS.
+
+Planned deploy paths:
+- **Frontend (static):** FTP (already set up in Phase 1).
+- **Backend (.NET, later):** Web Deploy to the Windows/.NET host.
+
+To confirm when we get to the backend: which simply.com plan/tier includes the
+Windows/.NET server, and its Web Deploy endpoint + credentials.
 
 ---
 
-## Phase 1 — "Coming Soon" + Deploy Pipeline  ◀ current
+## Phase 1 — "Coming Soon" + Deploy Pipeline  ✅ COMPLETE
 **Goal:** A designed "Coming Soon" placeholder page, automatically deployed to
 simply.com every time we push to the main branch.
 
@@ -54,7 +61,7 @@ FTP/SFTP deploys, DNS/hosting basics.
 
 ---
 
-## Phase 2 — Portfolio Foundation
+## Phase 2 — Portfolio Foundation  ◀ current
 **Goal:** Replace "Coming Soon" with a real (still simple) portfolio structure.
 
 Likely scope:
@@ -94,3 +101,5 @@ framework (e.g. Astro) for structure and reuse. We'll decide when we get here.
 
 ## Changelog
 - 2026-07-23 — Charter created. Phase 1 defined and started.
+- 2026-07-23 — Phase 1 COMPLETE. Coming Soon page live on domain via GitHub
+  Actions → FTP → simply.com. Pipeline verified green. Phase 2 begins.
