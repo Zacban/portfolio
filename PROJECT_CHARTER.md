@@ -20,23 +20,22 @@ Zac (zacban@gmail.com)
   driven from a laptop or from a phone via Claude Code on the web.
 
 ## Infrastructure (already in place)
-- **Web host:** simply.com (existing account) — deploy via **FTP**
+- **Web host:** Hostinger **VPS** running Docker. The site is a container
+  image (`ghcr.io/zacban/portfolio`) behind a Caddy reverse proxy, deployed by
+  GitHub Actions over SSH. (Was simply.com + FTP until the subscription ended
+  in Oct 2026.)
 - **Domain:** existing (owned by Zac)
-- **Version control / remote:** GitHub — user `zacban` (repo to be created)
+- **Version control / remote:** GitHub — user `zacban`
 
 ## .NET backend hosting
-Zac wants to build a **C# .NET 10** backend over time. simply.com **does offer
-Windows + .NET 10 hosting**, so the backend can live on the same host as the
-frontend — no separate VPS/Azure required. The "web deploy" option in the
-simply.com panel is Microsoft Web Deploy (msdeploy), the standard way to publish
-.NET apps to Windows/IIS.
+Zac wants to build a **C# .NET 10** backend over time. It will run as another
+container on the same VPS (`api` service in `deploy/docker-compose.yml`), with
+Caddy routing `/api/*` to it. The ASP.NET Core image runs on Linux, so no
+Windows/IIS hosting is needed.
 
-Planned deploy paths:
-- **Frontend (static):** FTP (already set up in Phase 1).
-- **Backend (.NET, later):** Web Deploy to the Windows/.NET host.
-
-To confirm when we get to the backend: which simply.com plan/tier includes the
-Windows/.NET server, and its Web Deploy endpoint + credentials.
+Deploy paths:
+- **Frontend (static):** Docker image → ghcr.io → VPS.
+- **Backend (.NET, later):** same pipeline, a second image.
 
 ---
 
@@ -94,8 +93,8 @@ framework (e.g. Astro) for structure and reuse. We'll decide when we get here.
 ---
 
 ## Open questions / to confirm
-- [ ] simply.com deploy method: FTP or SFTP? (affects the GitHub Action)
-- [ ] The exact domain name
+- [x] ~~simply.com deploy method~~ — superseded by Docker on a Hostinger VPS
+- [ ] The exact domain name (set as the `SITE_DOMAIN` repo variable)
 - [ ] GitHub account username / whether repo should be public or private
 - [ ] Design direction for the Coming Soon page (colors, vibe, wording)
 
@@ -103,3 +102,6 @@ framework (e.g. Astro) for structure and reuse. We'll decide when we get here.
 - 2026-07-23 — Charter created. Phase 1 defined and started.
 - 2026-07-23 — Phase 1 COMPLETE. Coming Soon page live on domain via GitHub
   Actions → FTP → simply.com. Pipeline verified green. Phase 2 begins.
+- 2026-10-14 — simply.com subscription ended. Moved hosting to a Hostinger VPS:
+  site now ships as a Docker image (nginx) behind Caddy, deployed via
+  GitHub Actions → ghcr.io → SSH `docker compose pull/up`.

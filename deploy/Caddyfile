@@ -1,0 +1,15 @@
+# Caddy config. SITE_DOMAIN comes from the .env file on the VPS.
+# - If SITE_DOMAIN is set (e.g. "example.com"), Caddy serves that domain over
+#   HTTPS and fetches a certificate automatically. DNS must point at the VPS.
+# - If it's empty, Caddy falls back to plain HTTP on port 80, so the site is
+#   reachable at http://<vps-ip> while DNS isn't set up yet.
+{$SITE_DOMAIN::80} {
+	encode zstd gzip
+
+	# Later, route the .NET backend:
+	# handle /api/* {
+	# 	reverse_proxy api:8080
+	# }
+
+	reverse_proxy web:80
+}
