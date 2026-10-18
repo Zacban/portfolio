@@ -1,4 +1,4 @@
-name: Deploy to simply.com
+name: Deploy to VPS
 
 # Run this pipeline every time we push to the main branch.
 on:
@@ -7,32 +7,87 @@ on:
   # Also allow running it manually from the GitHub "Actions" tab.
   workflow_dispatch:
 
+env:
+  IMAGE: ghcr.io/zacban/portfolio
+
 jobs:
-  deploy:
+  # 1. Build the site into a Docker image and publish it to GitHub's
+  #    container registry (ghcr.io). Each image is tagged with the commit SHA
+  #    (so any version can be rolled back to) and with "latest".
+  build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
-      # 1. Grab a copy of the repository.
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2. Upload the site to simply.com over FTP.
-      #    Credentials come from encrypted GitHub "secrets" (never in the code).
-      - name: Deploy via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
         with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          # The folder on simply.com to publish into. For most simply.com
-          # setups this is the web root, often "/public_html/" or "/".
-          # We'll confirm the exact path from your control panel.
-          server-dir: ${{ secrets.FTP_SERVER_DIR }}
-          # Don't upload repo/dev files to the live server.
-          exclude: |
-            **/.git*
-            **/.git*/**
-            **/.github/**
-            .agents/**
-            skills-lock.json
-            PROJECT_CHARTER.md
-            README.md
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ env.IMAGE }}:latest
+            ${{ env.IMAGE }}:${{ github.sha }}
+
+  # 2. SSH into the VPS, copy the compose setup over, and pull + restart the
+  #    containers with the new image.
+  #    Credentials come from encrypted GitHub "secrets" (never in the code).
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Traefik routes by domain name, so there is nothing to deploy without one.
+      - name: Check SITE_DOMAIN is set
+        run: |
+          if [ -z "${{ vars.SITE_DOMAIN }}" ]; then
+            echo "::error::Set the SITE_DOMAIN repository variable (e.g. zacban.tech)."
+            exit 1
+          fi
+
+      - name: Copy compose file to VPS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          source: "deploy/docker-compose.yml"
+          target: "portfolio"
+          strip_components: 1
+
+      - name: Pull and restart containers
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          GHCR_USER: ${{ github.actor }}
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SITE_DOMAIN: ${{ vars.SITE_DOMAIN }}
+          IMAGE_TAG: ${{ github.sha }}
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          envs: GHCR_USER,GHCR_TOKEN,SITE_DOMAIN,IMAGE_TAG
+          script_stop: true
+          script: |
+            cd ~/portfolio
+            printf 'SITE_DOMAIN=%s\nIMAGE_TAG=%s\n' "$SITE_DOMAIN" "$IMAGE_TAG" > .env
+            echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
+            docker compose pull
+            docker compose up -d --remove-orphans
+            docker logout ghcr.io
+            docker image prune -f

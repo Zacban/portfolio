@@ -1,0 +1,9 @@
+# Keep the Docker build context small — only site files are needed.
+.git
+.github
+.agents
+.claude
+deploy
+skills-lock.json
+PROJECT_CHARTER.md
+README.md
