@@ -34,19 +34,54 @@ the .NET API.
    Hostinger's Traefik project running (Docker Manager → Traefik template).
    The labels use its entrypoint `websecure` and certificate resolver
    `letsencrypt`.
-2. **Deploy user:** use a non-root user in the `docker` group
-   (`sudo usermod -aG docker <user>`, then log out and back in).
-3. **SSH key for GitHub Actions:** on your own machine, create a key just for
-   deploys:
-   ```bash
-   ssh-keygen -t ed25519 -f portfolio-deploy -C "github-actions deploy" -N ""
-   ```
-   Add the contents of `portfolio-deploy.pub` to `~/.ssh/authorized_keys` for
-   the deploy user on the VPS. The private key (`portfolio-deploy`) goes into
-   the `VPS_SSH_KEY` secret below.
-4. **Firewall:** allow ports 22, 80 and 443 (both in `ufw`, if enabled, and in
+2. **Deploy user and SSH key:** see the next section.
+3. **Firewall:** allow ports 22, 80 and 443 (both in `ufw`, if enabled, and in
    the Hostinger panel's VPS firewall).
-5. **DNS:** point the domain's `A` record (and `www`, if wanted) at the VPS IP.
+4. **DNS:** point the domain's `A` record (and `www`, if wanted) at the VPS IP.
+
+## One-time setup: deploy user and SSH key
+GitHub Actions logs **into the VPS** over SSH as a non-root `deploy` user. The
+key pair is made on your own PC: the **public** key goes on the VPS, and the
+**private** key goes into GitHub as a secret. GitHub's own "SSH keys" and
+"Deploy keys" pages are for logging into GitHub, which is the opposite
+direction, so they're not used here. The same user and key are shared with the
+VPS's other stacks (the private `vps` repo).
+
+1. **Create the deploy user** (on the VPS, as root):
+   ```bash
+   adduser --disabled-password --gecos "" deploy
+   usermod -aG docker deploy
+   mkdir -p /home/deploy/.ssh
+   chown deploy:deploy /home/deploy/.ssh && chmod 700 /home/deploy/.ssh
+   ```
+2. **Generate the key pair** (PowerShell on your PC). When it asks for a
+   passphrase, press Enter twice. The key **must not have a passphrase**,
+   because Actions can't type one:
+   ```powershell
+   ssh-keygen -t ed25519 -f $HOME\.ssh\vps-deploy -C "github-actions deploy"
+   ```
+3. **Put the public key on the VPS.** Print it with
+   `Get-Content $HOME\.ssh\vps-deploy.pub`, then on the VPS as root:
+   ```bash
+   echo "PASTE-THE-PUBLIC-KEY-LINE-HERE" >> /home/deploy/.ssh/authorized_keys
+   chown deploy:deploy /home/deploy/.ssh/authorized_keys && chmod 600 /home/deploy/.ssh/authorized_keys
+   ```
+4. **Test the login** from your PC. It should list the containers without
+   asking for a password:
+   ```powershell
+   ssh -i $HOME\.ssh\vps-deploy deploy@<vps-ip> "docker ps"
+   ```
+5. **Store the private key in GitHub** by piping it in:
+   ```powershell
+   Get-Content -Raw $HOME\.ssh\vps-deploy | gh secret set VPS_SSH_KEY -R Zacban/portfolio
+   ```
+   Don't use `gh secret set -f`: `-f` reads a file of `NAME=value` lines and
+   fails on a key. Never paste the private key into chats, issues or commits.
+
+**Replacing (rotating) the key:** generate a new one (step 2). On the VPS,
+remove the old line with
+`sed -i '/github-actions deploy/d' /home/deploy/.ssh/authorized_keys`, then
+repeat steps 3–5 (and update the secret in the `vps` repo too).
 
 ## One-time setup: GitHub secrets and variables
 In the GitHub repo, go to **Settings → Secrets and variables → Actions**.
@@ -56,8 +91,8 @@ In the GitHub repo, go to **Settings → Secrets and variables → Actions**.
 | Secret name    | What it is                                   |
 | -------------- | -------------------------------------------- |
 | `VPS_HOST`     | VPS IP address or hostname                   |
-| `VPS_USER`     | The deploy user on the VPS                   |
-| `VPS_SSH_KEY`  | The *private* deploy key (whole file)        |
+| `VPS_USER`     | The deploy user on the VPS (`deploy`)        |
+| `VPS_SSH_KEY`  | The *private* deploy key (see step 5 above)  |
 
 **Variables** (plain text, "Variables" tab):
 
