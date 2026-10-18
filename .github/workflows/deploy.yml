@@ -52,13 +52,21 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Copy compose files to VPS
+      # Traefik routes by domain name, so there is nothing to deploy without one.
+      - name: Check SITE_DOMAIN is set
+        run: |
+          if [ -z "${{ vars.SITE_DOMAIN }}" ]; then
+            echo "::error::Set the SITE_DOMAIN repository variable (e.g. zacban.dk)."
+            exit 1
+          fi
+
+      - name: Copy compose file to VPS
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
-          source: "deploy/docker-compose.yml,deploy/Caddyfile"
+          source: "deploy/docker-compose.yml"
           target: "portfolio"
           strip_components: 1
 

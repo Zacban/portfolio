@@ -21,7 +21,7 @@ Zac (zacban@gmail.com)
 
 ## Infrastructure (already in place)
 - **Web host:** Hostinger **VPS** running Docker. The site is a container
-  image (`ghcr.io/zacban/portfolio`) behind a Caddy reverse proxy, deployed by
+  image (`ghcr.io/zacban/portfolio`) behind the VPS's Traefik reverse proxy, deployed by
   GitHub Actions over SSH. (Was simply.com + FTP until the subscription ended
   in Oct 2026.)
 - **Domain:** existing (owned by Zac)
@@ -30,7 +30,7 @@ Zac (zacban@gmail.com)
 ## .NET backend hosting
 Zac wants to build a **C# .NET 10** backend over time. It will run as another
 container on the same VPS (`api` service in `deploy/docker-compose.yml`), with
-Caddy routing `/api/*` to it. The ASP.NET Core image runs on Linux, so no
+Traefik routing `/api` to it. The ASP.NET Core image runs on Linux, so no
 Windows/IIS hosting is needed.
 
 Deploy paths:
@@ -105,3 +105,6 @@ framework (e.g. Astro) for structure and reuse. We'll decide when we get here.
 - 2026-10-14 — simply.com subscription ended. Moved hosting to a Hostinger VPS:
   site now ships as a Docker image (nginx) behind Caddy, deployed via
   GitHub Actions → ghcr.io → SSH `docker compose pull/up`.
+- 2026-10-18 — Dropped the bundled Caddy: the VPS already runs Hostinger's
+  Traefik on 80/443, so the site container joins its `traefik-proxy` network
+  and is routed via labels.

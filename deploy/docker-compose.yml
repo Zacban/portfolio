@@ -1,39 +1,41 @@
-# Runs on the VPS (in ~/portfolio). The deploy workflow copies this file and the
-# Caddyfile there, then runs `docker compose pull && docker compose up -d`.
+# Runs on the VPS (in ~/portfolio). The deploy workflow copies this file there,
+# then runs `docker compose pull && docker compose up -d`.
 #
 # Values like SITE_DOMAIN come from the .env file next to this one, which the
 # workflow also writes.
+#
+# HTTPS is handled by the VPS's Traefik (Hostinger's default reverse proxy).
+# Traefik owns ports 80/443, reads the labels below, routes SITE_DOMAIN to this
+# container and gets a Let's Encrypt certificate for it. DNS must point at the VPS.
 
 services:
-  # Caddy is the front door: it listens on ports 80/443, gets and renews HTTPS
-  # certificates automatically, and forwards requests to the right container.
-  caddy:
-    image: caddy:2-alpine
-    restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
-      - "443:443/udp" # HTTP/3
-    environment:
-      SITE_DOMAIN: ${SITE_DOMAIN:-}
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy_data:/data     # certificates live here — keep this volume!
-      - caddy_config:/config
-    depends_on:
-      - web
-
-  # The portfolio site itself (nginx + index.html). Not exposed directly —
-  # only Caddy can reach it, over Docker's internal network.
+  # The portfolio site itself (nginx + index.html). It publishes no ports;
+  # Traefik reaches it over the shared traefik-proxy network.
   web:
     image: ghcr.io/zacban/portfolio:${IMAGE_TAG:-latest}
     restart: unless-stopped
+    networks:
+      - traefik-proxy
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.portfolio.rule=Host(`${SITE_DOMAIN}`) || Host(`www.${SITE_DOMAIN}`)
+      - traefik.http.routers.portfolio.entrypoints=websecure
+      - traefik.http.routers.portfolio.tls.certresolver=letsencrypt
+      - traefik.http.services.portfolio.loadbalancer.server.port=80
 
-  # Later: the .NET 10 backend goes here, e.g.
+  # Later: the .NET 10 backend goes here, on the same network, e.g.
   # api:
   #   image: ghcr.io/zacban/portfolio-api:${IMAGE_TAG:-latest}
   #   restart: unless-stopped
+  #   networks: [traefik-proxy]
+  #   labels:
+  #     - traefik.enable=true
+  #     - traefik.http.routers.portfolio-api.rule=Host(`${SITE_DOMAIN}`) && PathPrefix(`/api`)
+  #     - traefik.http.routers.portfolio-api.entrypoints=websecure
+  #     - traefik.http.routers.portfolio-api.tls.certresolver=letsencrypt
+  #     - traefik.http.services.portfolio-api.loadbalancer.server.port=8080
 
-volumes:
-  caddy_data:
-  caddy_config:
+networks:
+  # Created by Hostinger's Traefik project; we only join it.
+  traefik-proxy:
+    external: true

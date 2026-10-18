@@ -15,24 +15,26 @@ Every push to the `main` branch triggers a GitHub Actions workflow
 1. Builds the site into a Docker image ([Dockerfile](Dockerfile) — nginx with
    the site files baked in) and pushes it to `ghcr.io/zacban/portfolio`, tagged
    with `latest` and the commit SHA.
-2. SSHes into the VPS, copies over [deploy/docker-compose.yml](deploy/docker-compose.yml)
-   and [deploy/Caddyfile](deploy/Caddyfile), then pulls the new image and
-   restarts the containers.
+2. SSHes into the VPS, copies over [deploy/docker-compose.yml](deploy/docker-compose.yml),
+   then pulls the new image and restarts the container.
 
 ```
 edit → git push → GitHub Actions → build image → ghcr.io → VPS pulls → live site
 ```
 
-On the VPS, two containers run:
-- **caddy** — the front door on ports 80/443. Handles HTTPS certificates
-  automatically and forwards traffic to the site (and later to the .NET API).
-- **web** — the portfolio itself (nginx).
+On the VPS, the **web** container (nginx) serves the site. It publishes no
+ports. The VPS's **Traefik** (Hostinger's default reverse proxy) owns ports
+80/443. It reads the labels in the compose file, routes `SITE_DOMAIN` (and
+`www.`) to the container over the shared `traefik-proxy` network, and handles
+the Let's Encrypt certificates. Later it will also route `/api` to the .NET API.
 
 ## One-time VPS setup
-1. **Docker:** the VPS needs Docker with the Compose plugin. On Hostinger the
-   easiest route is the "Ubuntu with Docker" OS template; otherwise follow
-   <https://docs.docker.com/engine/install/ubuntu/>. Check with
-   `docker compose version`.
+1. **Docker + Traefik:** the VPS needs Docker with the Compose plugin, and
+   Hostinger's Traefik project running (Docker Manager → Traefik template).
+   Check that `docker network ls` lists `traefik-proxy`. If the name differs,
+   update it in [deploy/docker-compose.yml](deploy/docker-compose.yml), along
+   with the `websecure` entrypoint and `letsencrypt` resolver names if those
+   differ too.
 2. **Deploy user:** use a non-root user in the `docker` group
    (`sudo usermod -aG docker <user>`, then log out and back in).
 3. **SSH key for GitHub Actions:** on your own machine, create a key just for
@@ -62,10 +64,10 @@ In the GitHub repo, go to **Settings → Secrets and variables → Actions**.
 
 | Variable name  | What it is                                                   |
 | -------------- | ------------------------------------------------------------ |
-| `SITE_DOMAIN`  | e.g. `example.com`. Leave unset to serve plain HTTP on the IP |
+| `SITE_DOMAIN`  | e.g. `zacban.dk` (required: the deploy stops without it)    |
 
-Caddy only fetches an HTTPS certificate once `SITE_DOMAIN` is set **and** DNS
-points at the VPS — otherwise the certificate request fails.
+Traefik can only get an HTTPS certificate once DNS for `SITE_DOMAIN` (and
+`www.`) points at the VPS.
 
 The old `FTP_*` secrets from the simply.com setup can be deleted.
 
