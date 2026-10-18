@@ -98,7 +98,7 @@ In the GitHub repo, go to **Settings → Secrets and variables → Actions**.
 
 | Variable name  | What it is                                                   |
 | -------------- | ------------------------------------------------------------ |
-| `SITE_DOMAIN`  | e.g. `zacban.dk` (required: the deploy stops without it)    |
+| `SITE_DOMAIN`  | e.g. `zacban.tech` (required: the deploy stops without it)    |
 
 Traefik can only get an HTTPS certificate once DNS for `SITE_DOMAIN` (and
 `www.`) points at the VPS.
