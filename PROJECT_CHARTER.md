@@ -106,5 +106,5 @@ framework (e.g. Astro) for structure and reuse. We'll decide when we get here.
   site now ships as a Docker image (nginx) behind Caddy, deployed via
   GitHub Actions → ghcr.io → SSH `docker compose pull/up`.
 - 2026-10-18 — Dropped the bundled Caddy: the VPS already runs Hostinger's
-  Traefik on 80/443, so the site container joins its `traefik-proxy` network
-  and is routed via labels.
+  Traefik (host networking) on 80/443, so the site container is simply
+  routed via Docker labels.

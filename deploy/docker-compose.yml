@@ -5,17 +5,17 @@
 # workflow also writes.
 #
 # HTTPS is handled by the VPS's Traefik (Hostinger's default reverse proxy).
-# Traefik owns ports 80/443, reads the labels below, routes SITE_DOMAIN to this
-# container and gets a Let's Encrypt certificate for it. DNS must point at the VPS.
+# It runs with host networking on ports 80/443, watches Docker for containers
+# with the labels below, routes SITE_DOMAIN to this one and gets a Let's
+# Encrypt certificate for it. HTTP is already redirected to HTTPS by Traefik.
+# DNS must point at the VPS.
 
 services:
   # The portfolio site itself (nginx + index.html). It publishes no ports;
-  # Traefik reaches it over the shared traefik-proxy network.
+  # host-mode Traefik reaches it directly on its Docker network.
   web:
     image: ghcr.io/zacban/portfolio:${IMAGE_TAG:-latest}
     restart: unless-stopped
-    networks:
-      - traefik-proxy
     labels:
       - traefik.enable=true
       - traefik.http.routers.portfolio.rule=Host(`${SITE_DOMAIN}`) || Host(`www.${SITE_DOMAIN}`)
@@ -23,19 +23,13 @@ services:
       - traefik.http.routers.portfolio.tls.certresolver=letsencrypt
       - traefik.http.services.portfolio.loadbalancer.server.port=80
 
-  # Later: the .NET 10 backend goes here, on the same network, e.g.
+  # Later: the .NET 10 backend goes here, e.g.
   # api:
   #   image: ghcr.io/zacban/portfolio-api:${IMAGE_TAG:-latest}
   #   restart: unless-stopped
-  #   networks: [traefik-proxy]
   #   labels:
   #     - traefik.enable=true
   #     - traefik.http.routers.portfolio-api.rule=Host(`${SITE_DOMAIN}`) && PathPrefix(`/api`)
   #     - traefik.http.routers.portfolio-api.entrypoints=websecure
   #     - traefik.http.routers.portfolio-api.tls.certresolver=letsencrypt
   #     - traefik.http.services.portfolio-api.loadbalancer.server.port=8080
-
-networks:
-  # Created by Hostinger's Traefik project; we only join it.
-  traefik-proxy:
-    external: true

@@ -23,18 +23,17 @@ edit → git push → GitHub Actions → build image → ghcr.io → VPS pulls �
 ```
 
 On the VPS, the **web** container (nginx) serves the site. It publishes no
-ports. The VPS's **Traefik** (Hostinger's default reverse proxy) owns ports
-80/443. It reads the labels in the compose file, routes `SITE_DOMAIN` (and
-`www.`) to the container over the shared `traefik-proxy` network, and handles
-the Let's Encrypt certificates. Later it will also route `/api` to the .NET API.
+ports. The VPS's **Traefik** (Hostinger's default reverse proxy, running with
+host networking) owns ports 80/443. It reads the labels in the compose file,
+routes `SITE_DOMAIN` (and `www.`) to the container, redirects HTTP to HTTPS,
+and handles the Let's Encrypt certificates. Later it will also route `/api` to
+the .NET API.
 
 ## One-time VPS setup
 1. **Docker + Traefik:** the VPS needs Docker with the Compose plugin, and
    Hostinger's Traefik project running (Docker Manager → Traefik template).
-   Check that `docker network ls` lists `traefik-proxy`. If the name differs,
-   update it in [deploy/docker-compose.yml](deploy/docker-compose.yml), along
-   with the `websecure` entrypoint and `letsencrypt` resolver names if those
-   differ too.
+   The labels use its entrypoint `websecure` and certificate resolver
+   `letsencrypt`.
 2. **Deploy user:** use a non-root user in the `docker` group
    (`sudo usermod -aG docker <user>`, then log out and back in).
 3. **SSH key for GitHub Actions:** on your own machine, create a key just for
